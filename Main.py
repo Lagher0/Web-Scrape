@@ -14,13 +14,22 @@ job_url = []
 
 s = requests.Session()
 
-def Prepare_Page(url):
 
-    r = s.get(url, headers={'User-Agent': user_agent_array[0]})
+def Update_Index(index):
+    if index == len(user_agent_array)-1:
+        index = 0
+    else:
+        index += 1
+    return index
+
+def Prepare_Page(url,index):
+
+    r = s.get(url, headers={'User-Agent': user_agent_array[index]})
     time.sleep(random.randrange(5))
     response = r.text
     html = response
     page_soup = soup(html, "html.parser")
+    index = Update_Index(index)
     return page_soup
 
 def jobsite_Job_Info(page_soup):
@@ -49,14 +58,16 @@ def Find_All_Jobs():
         temp_a_link = job_titles.find("a", href = True) # Gets all <a> link tags that contain the links
         job_url.append(temp_a_link.get('href')) #Stores the links in the array
 
-def All_Job_Basic_Info():
+def All_Job_Basic_Info(index):
     for url in job_url: 
         print("\n")
-        page_soup = Prepare_Page(url)
+        page_soup = Prepare_Page(url,index)
         print(jobsite_Job_Info(page_soup))
 
-page_soup = Prepare_Page(my_url)
-index += 1
+
+page_soup = Prepare_Page(my_url,index)
+
+
 Find_All_Jobs()
-All_Job_Basic_Info()
+All_Job_Basic_Info(index)
 
