@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup as soup
 import time
 import random
 import requests
+import csv
 
 my_url = 'https://www.totaljobs.com/jobs/software-developer?s=header'
 user_agent_array = ["Mozilla/5.0 (Linux; Android 6.0.1; SM-G532M Build/MMB29T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.91 Mobile Safari/537.36",
@@ -14,22 +15,22 @@ job_url = []
 
 s = requests.Session()
 
-
 def Update_Index(index):
     if index == len(user_agent_array)-1:
         index = 0
     else:
         index += 1
+    print(index)
     return index
 
-def Prepare_Page(url,index):
 
-    r = s.get(url, headers={'User-Agent': user_agent_array[index]})
+def Prepare_Page(url):
+
+    r = s.get(url, headers={'User-Agent': user_agent_array[0]})
     time.sleep(random.randrange(5))
     response = r.text
     html = response
     page_soup = soup(html, "html.parser")
-    index = Update_Index(index)
     return page_soup
 
 def jobsite_Job_Info(page_soup):
@@ -58,16 +59,26 @@ def Find_All_Jobs():
         temp_a_link = job_titles.find("a", href = True) # Gets all <a> link tags that contain the links
         job_url.append(temp_a_link.get('href')) #Stores the links in the array
 
-def All_Job_Basic_Info(index):
+def All_Job_Basic_Info():
+    job_info_array = []
     for url in job_url: 
         print("\n")
-        page_soup = Prepare_Page(url,index)
-        print(jobsite_Job_Info(page_soup))
+        page_soup = Prepare_Page(url)
+        job_info_array.append(jobsite_Job_Info(page_soup))
+    return(job_info_array)
+
+def Write_CSV_File(job_info_array):
+    with open('job_description.csv', 'w', newline='') as csvfile:
+        for job_descrip in job_info_array:
+            jobwriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            jobwriter.writerow(job_descrip)
+        print("I ran")
 
 
-page_soup = Prepare_Page(my_url,index)
-
-
+page_soup = Prepare_Page(my_url)
 Find_All_Jobs()
-All_Job_Basic_Info(index)
+print(job_url)
+job_info_array = All_Job_Basic_Info()
+print(job_info_array)
+Write_CSV_File(job_info_array)
 
