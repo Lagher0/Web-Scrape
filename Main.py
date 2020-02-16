@@ -25,7 +25,6 @@ def Update_Index(index):
 
 def Prepare_Page(url):
     global index 
-    print(index)
     r = s.get(url, headers={'User-Agent': user_agent_array[(index)]})
     index = Update_Index(index)
     time.sleep(random.randrange(5))
