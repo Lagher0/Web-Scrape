@@ -9,9 +9,9 @@ user_agent_array = ["Mozilla/5.0 (Linux; Android 6.0.1; SM-G532M Build/MMB29T) A
 "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36",
 "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.14.2987.98 Safari/537.36",
 "Mozilla/5.0 (Linux; Android 4.4.2; P1 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Crosswalk/23.53.589.4 Safari/537.36",
-"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'"]
-index = 0
+"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36"]
 job_url = [] 
+index = 0
 
 s = requests.Session()
 
@@ -20,13 +20,14 @@ def Update_Index(index):
         index = 0
     else:
         index += 1
-    print(index)
     return index
 
 
 def Prepare_Page(url):
-
-    r = s.get(url, headers={'User-Agent': user_agent_array[0]})
+    global index 
+    print(index)
+    r = s.get(url, headers={'User-Agent': user_agent_array[(index)]})
+    index = Update_Index(index)
     time.sleep(random.randrange(5))
     response = r.text
     html = response
@@ -68,17 +69,17 @@ def All_Job_Basic_Info():
     return(job_info_array)
 
 def Write_CSV_File(job_info_array):
-    with open('job_description.csv', 'w', newline='') as csvfile:
-        for job_descrip in job_info_array:
+    for job_descrip in job_info_array:
+        with open('job_description.csv', 'w', newline='') as csvfile:
             jobwriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             jobwriter.writerow(job_descrip)
         print("I ran")
 
 
+print(index)
 page_soup = Prepare_Page(my_url)
 Find_All_Jobs()
 print(job_url)
 job_info_array = All_Job_Basic_Info()
 print(job_info_array)
-Write_CSV_File(job_info_array)
 
